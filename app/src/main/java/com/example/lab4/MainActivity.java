@@ -4,12 +4,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 import java.util.List;
 
@@ -82,5 +86,40 @@ lv_StudentList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         studentArrayAdapter=new ArrayAdapter<StudentMod>(MainActivity.this, android.R.layout.simple_list_item_1,databaseHelper.getEveryone());
         lv_StudentList.setAdapter(studentArrayAdapter);
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        MenuItem menuItem = menu.findItem(R.id.search);
+        SearchView searchView = (SearchView) menuItem.getActionView();
+        searchView.setQueryHint("Type here to search");
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+             @Override
+            public boolean onQueryTextSubmit(String s) {
+                List<StudentMod> searchResult = databaseHelper.searchStudent(s);
+                if(searchResult.isEmpty())
+                {
+                    Toast.makeText(MainActivity.this, "Student not found!",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    studentArrayAdapter = new
+                            ArrayAdapter<StudentMod>(MainActivity.this,
+                            android.R.layout.simple_list_item_1, searchResult);
+                    lv_StudentList.setAdapter(studentArrayAdapter);
+                }
+                return false;
+            }
+            // onQueryTextChange method will be called once user types a character
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+
+        return true;
+    }
+
 
 }
